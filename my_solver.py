@@ -14,10 +14,10 @@ class City:
         self.x = x
         self.y = y
 
-def solve(cities_list):
-    cities = []
-    for i in range(len(cities_list)):
-        cities.append(City(i, cities_list[i][0], cities_list[i][1])) # (0,(x,y)), (1,(x,y)) 
+
+def solve(cities_pos_list):
+    cities = create_city_list(cities_pos_list)
+    print(cities)
     # 交差したものを探すがどうやって探すのか？
     # Citiesをansとして持っておいて、appendしたときに探索する？cities[i], cities[i] = cities[i], cities[i]
     # 交差したもの A→B C→Dだったら、  A→C B→Dにしたいので  BとCをひっくり返す
@@ -37,11 +37,15 @@ def solve(cities_list):
         city_pos = find_nearest_city_pos(cities, current_city)
         current_city = cities.pop(city_pos)
         ans_cities.append(current_city)
-    
-    ans = []
-    for city in ans_cities:
-        ans.append(city.id)
+        
+    ans = create_city_ids(ans_cities)
     return ans
+
+def create_city_list(cities_pos_list):
+    cities = []
+    for i in range(len(cities_pos_list)):
+        cities.append(City(i, cities_pos_list[i][0], cities_pos_list[i][1]))
+    return cities
 
 def find_nearest_city_pos(cities, current_city):
     min_distance = float("inf")
@@ -53,6 +57,12 @@ def find_nearest_city_pos(cities, current_city):
             min_city_pos = i
     return  min_city_pos
 
+def create_city_ids(cities):
+    ids = []
+    for city in cities:
+        ids.append(city.id)
+    return ids
+    
 if __name__ == '__main__':
     assert len(sys.argv) > 1
     tour = solve(read_input(sys.argv[1]))
