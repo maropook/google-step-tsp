@@ -6,7 +6,6 @@ import  my_solver
 
 CHALLENGES = 7
 
-
 def generate_sample_output():
     for i in range(CHALLENGES):
         cities = read_input(f'input_{i}.csv')

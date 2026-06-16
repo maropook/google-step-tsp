@@ -5,7 +5,8 @@ import sys
 from common import print_tour, read_input
 
 """
-citiesは[(x,y)....]という形式のlistである、
+solve関数
+cities_pos_listは[(x,y)....]という形式のlistをinputとして受け取り、探索順にcities_pos_listでのindexのlistを返す
 
 """
 class City:
@@ -14,38 +15,31 @@ class City:
         self.x = x
         self.y = y
 
-
 def solve(cities_pos_list):
     cities = create_city_list(cities_pos_list)
-    print(cities)
-    # 交差したものを探すがどうやって探すのか？
-    # Citiesをansとして持っておいて、appendしたときに探索する？cities[i], cities[i] = cities[i], cities[i]
-    # 交差したもの A→B C→Dだったら、  A→C B→Dにしたいので  BとCをひっくり返す
-    # 交差することを判定する方法
-    # min(a_x, b_x) < c_x < max(a_x, b_x) or min(a_x, b_x) < d_x < max(a_x, b_x) 　and
-    # min(a_y, b_y) < c_y < max(a_y, b_y) or min(a_y, b_y) < d_y < max(a_y, b_y) 
-    # のときに交差してると言えるので、BとCをひっくりかえす
-    # 今までのcitiesをひとつひとつ見ていって、
-    # まずは貪欲法だけ考えてみる
-
-    # indexを返さないといけないので、formatを変えたい(0, (x, y))... というように変更する
-    ans_cities = []
-    current_city = cities.pop(0)
-    ans_cities.append(current_city)
-
-    while cities:
-        city_pos = find_nearest_city_pos(cities, current_city)
-        current_city = cities.pop(city_pos)
-        ans_cities.append(current_city)
-        
-    ans = create_city_ids(ans_cities)
+    optimized_cities = two_opt(greedy(cities))
+    ans = create_city_ids(optimized_cities)
     return ans
+
 
 def create_city_list(cities_pos_list):
     cities = []
     for i in range(len(cities_pos_list)):
         cities.append(City(i, cities_pos_list[i][0], cities_pos_list[i][1]))
     return cities
+
+
+def greedy(cities):
+    opt_cities = []
+    current_city = cities.pop(0)
+    opt_cities.append(current_city)
+    while cities:
+        city_pos = find_nearest_city_pos(cities, current_city)
+        current_city = cities.pop(city_pos)
+        opt_cities.append(current_city)
+    return opt_cities
+
+
 
 def find_nearest_city_pos(cities, current_city):
     min_distance = float("inf")
@@ -56,6 +50,23 @@ def find_nearest_city_pos(cities, current_city):
             min_distance = current_distance
             min_city_pos = i
     return  min_city_pos
+
+def two_opt(cities):
+    # listの最初と最後を含んでの大まかなswapの方法がわからない
+    is_optimized = True
+    while is_optimized:
+        is_optimized = False
+        N = len(cities)
+        for i in range(1, N-2):
+            a1, a2 = cities[i-1], cities[i]
+            for j in range(i+2, N):
+                b1, b2 =  cities[j-1], cities[j]
+                current_distance = (a1.x-a2.x)**2 + (a1.y-a2.y)**2 + (b1.x-b2.x)**2 + (b1.y-b2.y)**2
+                candidate_distance = (a1.x-b1.x)**2 + (a1.y-b1.y)**2 + (a2.x-b2.x)**2 + (a2.y-b2.y)**2
+                if current_distance > candidate_distance:
+                    cities[i:j] = reversed(cities[i:j]) 
+                    is_optimized = True
+    return cities
 
 def create_city_ids(cities):
     ids = []
