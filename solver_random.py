@@ -8,7 +8,10 @@ from common import print_tour, read_input
 def solve(cities):
     # Build a trivial solution.
     # Visit the cities in the order they appear in the input.
-    return list(range(len(cities)))
+    ans = list(range(len(cities)))
+    print(ans)
+    return ans
+
 
 
 if __name__ == '__main__':
