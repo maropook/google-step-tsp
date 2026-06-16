@@ -18,8 +18,11 @@ def solve(cities_list):
     cities = []
     for i in range(len(cities_list)):
         cities.append(City(i, cities_list[i][0], cities_list[i][1])) # (0,(x,y)), (1,(x,y)) 
-    # 交差したものを探すがどうやって探すのか？
-    # Citiesをansとして持っておいて、appendしたときに探索する？cities[i], cities[i] = cities[i], cities[i]
+    # 並び替えしたらinputがおかしくなるのが問題ではと思うけど
+    # indexとか関係なく座標を順番に返すだけだから大丈夫そう、
+    # 上下の差がminimumのやつを一つ一つ選んでいけば良さそう
+    # find_nearest_city(x, y) -> x,y でいいのかな
+    # divx**2 + divy ** 2が一番小さいものを返せばいい
     # 交差したもの A→B C→Dだったら、  A→C B→Dにしたいので  BとCをひっくり返す
     # 交差することを判定する方法
     # min(a_x, b_x) < c_x < max(a_x, b_x) or min(a_x, b_x) < d_x < max(a_x, b_x) 　and
@@ -29,29 +32,27 @@ def solve(cities_list):
     # まずは貪欲法だけ考えてみる
 
     # indexを返さないといけないので、formatを変えたい(0, (x, y))... というように変更する
-    ans_cities = []
+    ans = []
     current_city = cities.pop(0)
-    ans_cities.append(current_city)
+    ans.append(current_city.id)
 
     while cities:
-        city_pos = find_nearest_city_pos(cities, current_city)
+        city_index, city_pos = find_nearest_city(cities, current_city)
         current_city = cities.pop(city_pos)
-        ans_cities.append(current_city)
-    
-    ans = []
-    for city in ans_cities:
-        ans.append(city.id)
+        ans.append(city_index)
     return ans
 
-def find_nearest_city_pos(cities, current_city):
+def find_nearest_city(cities, current_city):
     min_distance = float("inf")
+    min_city_id = -1
     min_city_pos = -1
     for i in range(len(cities)):
         current_distance = (cities[i].x -current_city.x)**2 + (cities[i].y -current_city.y)**2
         if min_distance > current_distance:
+            min_city_id = cities[i].id
             min_distance = current_distance
             min_city_pos = i
-    return  min_city_pos
+    return  min_city_id, min_city_pos
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1
